@@ -25,4 +25,7 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario") //En la tabla Producto existe un atributo llamado usuario;
     private List<Producto> producto;
+
+    @OneToMany(mappedBy = "usuario")
+    private List<Orden> ordenes;
 }
