@@ -3,16 +3,16 @@ package com.curso.ecommerce.controller;
 import com.curso.ecommerce.model.Producto;
 import com.curso.ecommerce.model.Usuario;
 import com.curso.ecommerce.service.ProductoService;
+import com.curso.ecommerce.service.UploadFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Controller
@@ -22,6 +22,8 @@ public class ProductoController {
     private final Logger LOGGER = LoggerFactory.getLogger(ProductoController.class);
     @Autowired //Para que spring lo instancie
     private ProductoService productoService; //Interfaz donde definimos los métodos
+
+    private UploadFileService upload;
 
     @GetMapping("")
     public String show(Model model){ //model va traer información desde el backend hacia la vista
@@ -35,11 +37,29 @@ public class ProductoController {
     }
 
     @PostMapping("/save")
-    public String save(Producto producto){
+    public String save(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
         LOGGER.info("Este es el objeto producto: {}", producto);
 
         Usuario u = new Usuario(1, "", "", "", "", "", "", "");
         producto.setUsuario(u);
+
+        //Imagen
+        if(producto.getId() == null){ //Cuando se crea un producto
+            String nombreImagen = this.upload.saveImage(file);
+            producto.setImagen(nombreImagen); //Guardo en el campo imagen del objeto
+        }
+        else{
+            if(file.isEmpty()){ //Cuando editamos producto pero no se cambia imagen
+                Producto p = new Producto();
+                p = this.productoService.get(producto.getId()).get();
+                producto.setImagen(p.getImagen());
+            }
+            else{ //Cuando editamos y cambiamos la imagen
+                String nombreImagen = this.upload.saveImage(file);
+                producto.setImagen(nombreImagen); //Guardo en el campo imagen del objeto Producto
+            }
+        }
+
         this.productoService.save(producto);
         return "redirect:/productos"; //Va a cargar la vista show
     }
