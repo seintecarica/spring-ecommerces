@@ -23,6 +23,7 @@ public class ProductoController {
     @Autowired //Para que spring lo instancie
     private ProductoService productoService; //Interfaz donde definimos los métodos
 
+    @Autowired
     private UploadFileService upload;
 
     @GetMapping("")
@@ -49,15 +50,7 @@ public class ProductoController {
             producto.setImagen(nombreImagen); //Guardo en el campo imagen del objeto
         }
         else{
-            if(file.isEmpty()){ //Cuando editamos producto pero no se cambia imagen
-                Producto p = new Producto();
-                p = this.productoService.get(producto.getId()).get();
-                producto.setImagen(p.getImagen());
-            }
-            else{ //Cuando editamos y cambiamos la imagen
-                String nombreImagen = this.upload.saveImage(file);
-                producto.setImagen(nombreImagen); //Guardo en el campo imagen del objeto Producto
-            }
+
         }
 
         this.productoService.save(producto);
@@ -78,13 +71,36 @@ public class ProductoController {
     }
 
     @PostMapping("/update")
-    public String update(Producto producto){
+    public String update(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
+        Producto p = new Producto();
+        p = this.productoService.get(producto.getId()).get();
+
+        if(file.isEmpty()){ //Cuando editamos producto pero no se cambia imagen
+            producto.setImagen(p.getImagen());
+        }
+        else{ //Cuando se edita también la imagen
+            //Eliminar cuando no sea la imagen por defecto
+            if(!p.getImagen().equals("default.jpg")){
+                this.upload.deleteImage(p.getImagen());
+            }
+            String nombreImagen = this.upload.saveImage(file);
+            producto.setImagen(nombreImagen); //Guardo en el campo imagen del objeto Producto
+        }
+        producto.setUsuario(p.getUsuario());
         this.productoService.update(producto);
         return "redirect:/productos";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id){
+        Producto p = new Producto();
+        p = this.productoService.get(id).get();
+
+        //Eliminar cuando no sea la imagen por defecto
+        if(!p.getImagen().equals("default.jpg")){
+            this.upload.deleteImage(p.getImagen());
+        }
+
         this.productoService.delete(id);
         return "redirect:/productos";
     }
