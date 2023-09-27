@@ -2,7 +2,7 @@ package com.curso.ecommerce.controller;
 
 import com.curso.ecommerce.model.Producto;
 import com.curso.ecommerce.model.Usuario;
-import com.curso.ecommerce.service.ProductoService;
+import com.curso.ecommerce.service.IProductoService;
 import com.curso.ecommerce.service.UploadFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class ProductoController {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ProductoController.class);
     @Autowired //Para que spring lo instancie
-    private ProductoService productoService; //Interfaz donde definimos los métodos
+    private IProductoService productoService; //Interfaz donde definimos los métodos
 
     @Autowired
     private UploadFileService upload;
