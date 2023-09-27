@@ -20,10 +20,8 @@ public class Producto {
     private String imagen;
     private Double precio;
     private int cantidad;
-
     @ManyToOne
     private Usuario usuario;
-
     @Override
     public String toString() {
         return "Producto{" +
