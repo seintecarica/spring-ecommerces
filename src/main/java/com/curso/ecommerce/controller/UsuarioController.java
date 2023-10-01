@@ -28,4 +28,9 @@ public class UsuarioController {
         this.usuarioService.save(usuario);
         return "redirect:/";
     }
+
+    @GetMapping("/login")
+    public String login(){
+        return "usuario/login";
+    }
 }
